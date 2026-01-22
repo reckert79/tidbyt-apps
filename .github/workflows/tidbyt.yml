@@ -1,28 +1,14 @@
 # Tidbyt Daily Push Workflow
-# This workflow automatically renders and pushes your Tidbyt app every day at 6 AM Eastern
-# 
-# SETUP INSTRUCTIONS:
-# 1. Create this file at: .github/workflows/tidbyt.yml in your repo
-# 2. Go to your repo on GitHub → Settings → Secrets and variables → Actions
-# 3. Click "New repository secret" and add:
-#    - Name: TIDBYT_API_TOKEN
-#    - Value: your Tidbyt API token
-# 4. Click "New repository secret" again and add:
-#    - Name: TIDBYT_DEVICE_ID  
-#    - Value: comically-refreshed-revealing-albatross-420
-# 5. Commit and push this file to your repo
-#
-# The workflow will run automatically every day at 6 AM Eastern Time
+# Automatically renders and pushes your Tidbyt app every day at 6 AM Eastern
 
 name: Push Tidbyt App
 
 on:
   schedule:
-    # Runs at 6:00 AM Eastern Time (11:00 UTC in winter, 10:00 UTC in summer)
-    # Using 11:00 UTC to account for EST
+    # Runs at 6:00 AM Eastern Time (11:00 UTC)
     - cron: '0 11 * * *'
   
-  # Allows you to manually trigger the workflow from GitHub Actions tab
+  # Allows manual trigger from GitHub Actions tab
   workflow_dispatch:
 
 jobs:
@@ -30,27 +16,25 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      # Check out your repository
       - name: Checkout repo
         uses: actions/checkout@v4
       
-      # Install Pixlet
       - name: Install Pixlet
         run: |
-          # Download latest pixlet for Linux
-          curl -LO https://github.com/tidbyt/pixlet/releases/latest/download/pixlet_linux_amd64.tar.gz
-          tar -xzf pixlet_linux_amd64.tar.gz
+          # Get the latest release download URL
+          LATEST_URL=$(curl -s https://api.github.com/repos/tidbyt/pixlet/releases/latest | grep "browser_download_url.*linux_amd64.tar.gz" | cut -d '"' -f 4)
+          echo "Downloading from: $LATEST_URL"
+          curl -L -o pixlet.tar.gz "$LATEST_URL"
+          tar -xzf pixlet.tar.gz
           chmod +x pixlet
           sudo mv pixlet /usr/local/bin/
           pixlet version
       
-      # Render the app
       - name: Render Tidbyt App
         run: |
           pixlet render mindess_lunch.star
           ls -la *.webp
       
-      # Push to Tidbyt
       - name: Push to Tidbyt
         env:
           TIDBYT_API_TOKEN: ${{ secrets.TIDBYT_API_TOKEN }}

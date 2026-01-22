@@ -21,11 +21,8 @@ jobs:
       
       - name: Install Pixlet
         run: |
-          # Get the latest release download URL
-          LATEST_URL=$(curl -s https://api.github.com/repos/tidbyt/pixlet/releases/latest | grep "browser_download_url.*linux_amd64.tar.gz" | cut -d '"' -f 4)
-          echo "Downloading from: $LATEST_URL"
-          curl -L -o pixlet.tar.gz "$LATEST_URL"
-          tar -xzf pixlet.tar.gz
+          curl -LO https://github.com/tidbyt/pixlet/releases/download/v0.34.0/pixlet_0.34.0_linux_amd64.tar.gz
+          tar -xzf pixlet_0.34.0_linux_amd64.tar.gz
           chmod +x pixlet
           sudo mv pixlet /usr/local/bin/
           pixlet version
